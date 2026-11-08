@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d0c">
+  <title>.-.</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: #080d0c url("./sculk.png") center center / cover no-repeat fixed;
+      isolation: isolate;
+    }
+
+    /* Небольшое затемнение помогает читать текст на любой части картинки. */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(135deg, rgb(0 0 0 / 24%), rgb(0 0 0 / 38%));
+    }
+
+    .message {
+      width: min(1100px, 92vw);
+      margin: 0;
+      color: #fff;
+      text-align: center;
+      font-size: clamp(15px, 2.05vw, 27px);
+      font-weight: 400;
+      line-height: 1.8;
+      letter-spacing: 0.075em;
+      overflow-wrap: anywhere;
+      cursor: default;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      text-shadow: 0 1px 12px rgb(0 0 0 / 55%);
+    }
+
+    .message span {
+      display: inline-block;
+      white-space: pre;
+      will-change: opacity, filter, color, text-shadow;
+    }
+
+    .message.is-consuming span:not(.space) {
+      animation: sculk-eat 1.15s cubic-bezier(.45, 0, .8, .35) forwards;
+      animation-delay: calc(var(--i) * 13ms);
+    }
+
+    @keyframes sculk-eat {
+      0% {
+        color: #fff;
+        opacity: 1;
+        filter: blur(0);
+        text-shadow: 0 0 0 transparent;
+        transform: translateY(0);
+      }
+      28% {
+        color: #b9fff2;
+        opacity: 1;
+        text-shadow: 0 0 8px #35e6c0, 0 0 20px rgb(25 210 170 / 75%);
+      }
+      100% {
+        color: #5ce8ce;
+        opacity: 0.08;
+        filter: blur(2px);
+        text-shadow: 0 0 15px #19d6b0;
+        transform: translateY(-2px);
+      }
+    }
+
+    @media (hover: none) {
+      .message { cursor: pointer; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .message.is-consuming span:not(.space) {
+        animation-duration: 1ms;
+        animation-delay: 0ms;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="message" id="message" aria-label="Зашифрованное сообщение"></p>
+  </main>
+
+  <script>
+    const cipher = "-.- .- - / --- .-. .--. .-. --- ... .--. / . -. / .-.. . - .- .... / .-.- / -.-- .-.. .- - .-. --- .--.";
+    const message = document.getElementById("message");
+
+    // Отдельные символы позволяют эффекту проходить по строке волной.
+    [...cipher].forEach((character, index) => {
+      const span = document.createElement("span");
+      span.textContent = character;
+      span.style.setProperty("--i", index);
+      if (character === " ") span.className = "space";
+      message.appendChild(span);
+    });
+
+    let resetTimer;
+
+    function consume() {
+      clearTimeout(resetTimer);
+      message.classList.remove("is-consuming");
+      // Перезапуск CSS-анимации при повторном наведении.
+      void message.offsetWidth;
+      message.classList.add("is-consuming");
+    }
+
+    function restore() {
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        message.classList.remove("is-consuming");
+      }, 80);
+    }
+
+    message.addEventListener("pointerenter", consume);
+    message.addEventListener("pointerleave", restore);
+    message.addEventListener("click", () => {
+      consume();
+      resetTimer = setTimeout(restore, 1500);
+    });
+  </script>
+</body>
+</html>
