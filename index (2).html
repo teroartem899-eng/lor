@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d0c">
+  <meta name="description" content="echo sculk">
+  <title>echo sculk</title>
+  <link rel="icon" type="image/png" href="./sculk.png">
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "JetBrains Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: #080d0c url("./sculk.png") center center / cover no-repeat fixed;
+      isolation: isolate;
+    }
+
+    /* Небольшое затемнение сохраняет читаемость надписи поверх фона. */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(135deg, rgb(0 0 0 / 24%), rgb(0 0 0 / 38%));
+    }
+
+    .fx-focus {
+      width: min(1050px, 90vw);
+      margin: 0;
+      color: #fff;
+      text-align: center;
+      font: 600 clamp(10px, 1.1vw, 15px) / 1.8 "JetBrains Mono", "Courier New", monospace;
+      letter-spacing: .075em;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      cursor: default;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      text-shadow: 0 1px 10px rgb(0 0 0 / 58%);
+    }
+
+    .fx-focus b {
+      font-weight: inherit;
+      display: inline-block;
+      animation: fx-focus 2.6s ease-in-out infinite;
+      animation-delay: calc(var(--i) * .055s);
+      will-change: filter, opacity;
+    }
+
+    @keyframes fx-focus {
+      0%, 100% { filter: blur(0); opacity: 1; }
+      50%      { filter: blur(4px); opacity: .35; }
+    }
+
+    @media (hover: none) {
+      .fx-focus { cursor: default; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fx-focus b {
+        animation: none;
+        filter: none;
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="fx-focus" id="message" role="img" aria-label="-.- .- - / --- .-. .--. .-. --- ... .--. / . -. / .-.. . - .- .... / .-.- / -.-- .-.. .- - .-. --- .--."></p>
+  </main>
+
+  <script>
+    const cipher = "-.- .- - / --- .-. .--. .-. --- ... .--. / . -. / .-.. . - .- .... / .-.- / -.-- .-.. .- - .-. --- .--.";
+    const message = document.getElementById("message");
+    let letterIndex = 0;
+
+    // Каждая буква/точка/тире получает собственную задержку — эффект идёт волной.
+    for (const character of cipher) {
+      if (character === " ") {
+        message.appendChild(document.createTextNode(" "));
+        continue;
+      }
+
+      const letter = document.createElement("b");
+      letter.textContent = character;
+      letter.setAttribute("aria-hidden", "true");
+      letter.style.setProperty("--i", letterIndex++);
+      message.appendChild(letter);
+    }
+  </script>
+</body>
+</html>
